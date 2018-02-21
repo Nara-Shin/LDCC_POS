@@ -40,16 +40,6 @@ public class ClientExam {
 
 	public static void main(String[] args) {
 		Cli = new ClientExam();
-		// Cli.login();
-
-		// try {
-		// socket = new Socket(IP, PORT_NUM);
-		// Cli.draw_menu(socket);
-		// socket.close();
-		// System.out.println("CLOSE");
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
 		Cli.draw_menu();
 	}
 
@@ -127,44 +117,7 @@ public class ClientExam {
 				// ###################수량조절 개발하기
 				// ###################여러 개 등록하는거 개발하기
 				System.out.println("★바코드 입력하기★");
-				String response;
 
-//				try {
-//					socket = new Socket(IP, PORT_NUM);
-//					bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-//					bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//					String[] prod = new String[3];
-//					System.out.println("※ 입력 종료 시 : q클릭");
-//					while (true) {
-//						prod[0] = "sell";
-//						bufferedWriter.write(prod[0]);
-//						bufferedWriter.newLine();
-//						bufferedWriter.flush();
-//						if(sc.nextLine().equals("q")) {
-//							response = "n";
-//							break;
-//						}else {
-//							response = "y";
-//							System.out.print("바코드 번호 : ");
-//							prod[1] = sc.nextLine();
-//							System.out.print("수량 : ");
-//							prod[2] = sc.nextLine();
-//							bufferedWriter.write(prod[1]);
-//							bufferedWriter.newLine();
-//							bufferedWriter.write(prod[2]);
-//							bufferedWriter.newLine();
-//							bufferedWriter.flush();
-//						}
-//					}
-//					
-//					if(!response.equals("n")) {
-//						setTableForm(bufferedReader);
-//					}
-//					socket.close();
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-				
 				String[] prod = new String[3];
 				try {
 					socket = new Socket(IP, PORT_NUM);
@@ -277,45 +230,13 @@ public class ClientExam {
 			System.out.println("| Options:                 |");
 			System.out.println("|        1. 전체 품목 조회 |");
 			System.out.println("|        2. 특정 품목 조회 |");
-			System.out.println("|        3. 입고 품목 등록 |");
-			System.out.println("|        4. 뒤로가기       |");
+			System.out.println("|        3. 뒤로가기       |");
 			System.out.println("============================");
 			swValue = Keyin.inInt(" ▶ 메뉴 선택 : ");
 
 			switch (swValue) {
 			case 1:
 				System.out.println("★전체 품목 조회★");
-				// try {
-				// Socket socket = new Socket(IP, PORT_NUM);
-				//
-				// // 서버에게 보내기 위한 준비
-				// BufferedWriter bufferedWriter = new BufferedWriter(
-				// new OutputStreamWriter(socket.getOutputStream()));
-				//
-				// String code = "all";
-				//
-				// bufferedWriter.write(code);
-				// bufferedWriter.newLine(); // readLine()으로 읽기 때문에 개행 추가
-				// bufferedWriter.flush();
-				//
-				// BufferedReader bufferedReader = new BufferedReader(new
-				// InputStreamReader(socket.getInputStream()));
-				//
-				// // 서버부터 메시지 입력받음
-				// String serverMessage = bufferedReader.readLine();
-				//
-				// // 입력받은 내용을 서버 콘솔에 출력
-				// String line = null;
-				// while ((line = serverMessage) != null) {
-				// System.out.println("서버가 보내온 내용 : " + line);
-				// }
-				//
-				// socket.close();// 접속 종료
-				//
-				// } catch (Exception e) {
-				// e.printStackTrace();
-				// }
-
 				String[] prod = new String[3];
 				try {
 					socket = new Socket(IP, PORT_NUM);
@@ -330,42 +251,6 @@ public class ClientExam {
 
 					bufferedWriter.flush();
 
-					// 출력 폼
-//					String leftAlignFormat = "| %-15s | %-15s | %-4s | %-4s | %-4s |%n";
-//
-//					System.out.format("+-----------------+-----------------+------+------+------+%n");
-//					System.out.format("|      바코드     |      품명       | 가격 | 중량 | 수량 |%n");
-//					System.out.format("+-----------------+-----------------+------+------+------+%n");
-//
-//					String line = "";
-//					String[] prod_list = new String[5];
-//					int i = 0;
-//					while ((line = bufferedReader.readLine()) != null) {
-//						StringTokenizer st = new StringTokenizer(line);
-//						while (st.hasMoreTokens()) { // 더이상 문자가 없을때 까지 반복
-//
-//							if (i == 0) {
-//								prod_list[i] = st.nextToken();
-//								i++;
-//							} else if (i == 1) {
-//								prod_list[i] = st.nextToken();
-//								i++;
-//							} else if (i == 2) {
-//								prod_list[i] = st.nextToken();
-//								i++;
-//							} else if (i == 3) {
-//								prod_list[i] = st.nextToken();
-//								i++;
-//							} else if (i == 4) {
-//								prod_list[i] = st.nextToken();
-//								System.out.format(leftAlignFormat, prod_list[0], prod_list[1], prod_list[2],
-//										prod_list[3], prod_list[4]);
-//								i = 0;
-//								break;
-//							}
-//						}
-//					}
-//					System.out.format("+-----------------+-----------------+------+------+------+%n");
 					setTableForm(bufferedReader);
 					socket.close();
 				} catch (Exception e) {
@@ -376,9 +261,6 @@ public class ClientExam {
 				System.out.println("★특정 품목 조회★");
 				continue;
 			case 3:
-				System.out.println("★입고 품목 등록★");
-				continue;
-			case 4:
 				System.out.println("★뒤로 가기★");
 				break;
 			default:
@@ -388,14 +270,14 @@ public class ClientExam {
 			break;
 		}
 	}
-	
+
 	public void setTableForm(BufferedReader bufferedReader) {
 		// 출력 폼
 		String leftAlignFormat = "| %-15s | %-15s | %-4s | %-4s | %-4s |%n";
 
-		System.out.format("+-----------------+-----------------+------+------+------+%n");
-		System.out.format("|      바코드     |      품명       | 가격 | 중량 | 수량 |%n");
-		System.out.format("+-----------------+-----------------+------+------+------+%n");
+		System.out.format("+-----------------+--------------------+------+------+------+%n");
+		System.out.format("|      바코드     |        품명        | 가격 | 중량 | 수량 |%n");
+		System.out.format("+-----------------+--------------------+------+------+------+%n");
 
 		String line = "";
 		String[] prod_list = new String[5];
@@ -419,8 +301,8 @@ public class ClientExam {
 						i++;
 					} else if (i == 4) {
 						prod_list[i] = st.nextToken();
-						System.out.format(leftAlignFormat, prod_list[0], prod_list[1], prod_list[2],
-								prod_list[3], prod_list[4]);
+						System.out.format(leftAlignFormat, prod_list[0], prod_list[1], prod_list[2], prod_list[3],
+								prod_list[4]);
 						i = 0;
 						break;
 					}
@@ -430,7 +312,7 @@ public class ClientExam {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.format("+-----------------+-----------------+------+------+------+%n");
+		System.out.format("+-----------------+--------------------+------+------+------+%n");
 	}
 }
 

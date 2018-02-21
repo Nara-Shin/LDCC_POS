@@ -46,13 +46,6 @@ public class ServerExam {
 		Statement stmt = null;
 
 		try {
-//			serverSocket = new ServerSocket(PORT_NUM);// 서버소켓 선언
-//			System.out.println("\n클라이언트 접속 대기 중...");
-//			socket = serverSocket.accept(); // 서버소켓으로부터 소켓 객체 가져오기
-//
-//			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//			BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-
 			while (true) {
 				serverSocket = new ServerSocket(PORT_NUM);// 서버소켓 선언
 				System.out.println("\n클라이언트 접속 대기 중...");
@@ -124,64 +117,12 @@ public class ServerExam {
 					CheckProduct();
 				} else if (clientMessage.equals("exit")) {
 					bufferedReader.close();
+					serverSocket.close();
+					socket.close();// 접속 종료
 					break;
 				}
 				serverSocket.close();
 				socket.close();// 접속 종료
-
-				// int code = clientMessage;
-
-				// if(clientMessage == "all") {
-				// try {
-				// Class.forName(JDBC_DRIVER);
-				// conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
-				// System.out.println("\n- MySQL Connection");
-				// stmt = conn.createStatement();
-				//
-				// String sql;
-				// sql = "SELECT prod_code, prod_name FROM prod_info";
-				// ResultSet rs = stmt.executeQuery(sql);
-				//
-				// while (rs.next()) {
-				// String prod_code = rs.getString("prod_code");
-				// String prod_name = rs.getString("prod_name");
-				//
-				// System.out.print("\n** Code : " + prod_code);
-				// System.out.print("\n -> Name: " + prod_name);
-				// bufferedWriter.write("상품명 : " + prod_name+"\r\n");
-				// bufferedWriter.newLine(); // readLine()으로 읽으므로 한줄끝을 알림
-				//
-				// }
-				// rs.close();
-				// stmt.close();
-				// conn.close();
-				// } catch (SQLException se1) {
-				// se1.printStackTrace();
-				// } catch (Exception ex) {
-				// ex.printStackTrace();
-				// } finally {
-				// try {
-				// if (stmt != null)
-				// stmt.close();
-				// } catch (SQLException se2) {
-				// }
-				// try {
-				// if (conn != null)
-				// conn.close();
-				// } catch (SQLException se) {
-				// se.printStackTrace();
-				// }
-				// }
-				// }
-
-				// bufferedWriter.write("ㄱㄱㄱㄱㄱ");
-				// bufferedWriter.newLine(); // readLine()으로 읽으므로 한줄끝을 알림
-				// bufferedWriter.flush();
-
-				// bufferedReader.close();
-				// serverSocket.close();
-				// socket.close();// 접속 종료
-				// break;
 			}
 
 		} catch (Exception e) {
@@ -207,50 +148,7 @@ public class ServerExam {
 		
 		result_list = dao.sellProductList(dto);
 
-		try {
-			bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-			for (int i = 0; i < result_list.size(); i++) {
-				ProductDTO prod = result_list.get(i);
-				bufferedWriter.write(prod.getProd_code() + " ");
-
-				bufferedWriter.write(prod.getProd_name() + " ");
-
-				bufferedWriter.write(prod.getProd_price() + " ");
-
-				bufferedWriter.write(prod.getProd_quantity() + " ");
-
-				bufferedWriter.write(prod.getProd_weight() + " ");
-				bufferedWriter.newLine(); // readLine()으로 읽으므로 한줄끝을 알림
-			}
-			bufferedWriter.flush();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-//		System.out.println(result_list);
-//		try {
-//			bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//			bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-//			for (int i = 0; i < result_list.size(); i++) {
-//				ProductDTO prod = result_list.get(i);
-//				bufferedWriter.write(prod.getProd_code());
-//				bufferedWriter.newLine(); // readLine()으로 읽으므로 한줄끝을 알림
-//				bufferedWriter.write(prod.getProd_name());
-//				bufferedWriter.newLine(); // readLine()으로 읽으므로 한줄끝을 알림
-//				bufferedWriter.write(prod.getProd_price());
-//				bufferedWriter.newLine(); // readLine()으로 읽으므로 한줄끝을 알림
-//				bufferedWriter.write(prod.getProd_quantity());
-//				bufferedWriter.newLine(); // readLine()으로 읽으므로 한줄끝을 알림
-//				bufferedWriter.write(prod.getProd_weight());
-//				bufferedWriter.newLine(); // readLine()으로 읽으므로 한줄끝을 알림
-//			}
-//			bufferedWriter.flush();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		flushBuffer(bufferedWriter, result_list);
 
 	}
 
@@ -289,6 +187,11 @@ public class ServerExam {
 		List<ProductDTO> result_list = new ArrayList<ProductDTO>();
 		result_list = dao.getProductList();
 
+		flushBuffer(bufferedWriter, result_list);
+
+	}
+	
+	private static void flushBuffer(BufferedWriter bufferedWriter, List<ProductDTO> result_list) {
 		try {
 			bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -310,7 +213,6 @@ public class ServerExam {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 
 }

@@ -52,7 +52,7 @@ public class ProductDAO {
 	}
 
 	/** 한 품목의 정보를 얻는 메소드 */
-//	public ProductDTO getProductDTO(String id) {
+//	public ProductDTO getProductDTO(ProductDTO vProd) {
 //
 //		ProductDTO dto = new ProductDTO();
 //
@@ -63,9 +63,9 @@ public class ProductDAO {
 //		try {
 //
 //			con = getConn();
-//			String sql = "select * from tb_member where id=?";
+//			String sql = "select * from prod_info where prod_code=?";
 //			ps = con.prepareStatement(sql);
-//			ps.setString(1, id);
+//			ps.setString(1, vProd.getProd_code());
 //
 //			rs = ps.executeQuery();
 //
@@ -96,7 +96,7 @@ public class ProductDAO {
 		try {
 
 			con = getConn();
-			String sql = "select * from prod_info order by prod_name asc";
+			String sql = "select * from prod_info order by prod_code asc";
 			ps = con.prepareStatement(sql);
 			rs = ps.executeQuery();
 			while (rs.next()) {
