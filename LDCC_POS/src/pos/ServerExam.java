@@ -37,7 +37,7 @@ public class ServerExam {
 	// 서버 소켓 및 소켓 선언
 	private static ServerSocket serverSocket;
 	private static Socket socket;
-	
+
 	private static BufferedReader bufferedReader;
 	private static BufferedWriter bufferedWriter;
 
@@ -62,42 +62,47 @@ public class ServerExam {
 				System.out.println("클라이언트가 보내온 내용 : " + clientMessage);
 				// 클라이언트에게 보내기 위한 준비
 				if (clientMessage.equals("sell")) {
-//					int i = 1;
-//					String[] prod = new String[3];
-//					String line = "";
-//					while ((line = bufferedReader.readLine()) != null) {
-//						if (i == 1) {
-//							prod[i] = line;
-//							System.out.println(i + ": " + line);
-//							i++;
-//						} else {
-//							prod[i] = line;
-//							System.out.println(i + ": " + line);
-//							break;
-//						}
-////						SellProduct(prod[1], Integer.parseInt(prod[2]));
-//					}
 					int i = 1;
+					int prod_num = 0;
+					int cn = 0;
+					int qn = 0;
+
 					String[] prod = new String[3];
-					
+					String[] code_arr = new String[100];
+					String[] qunatity_arr = new String[100];
+
 					String line = "";
 					while ((line = bufferedReader.readLine()) != null) {
-						if (i == 1) {
+						if (i == 0) {
 							prod[i] = line;
-							System.out.println(i + ": " + line);
+							if (prod[i].equals("fin")) {
+								break;
+							}
 							i++;
+						} else if (i == 1) {
+							prod[i] = line;
+							code_arr[cn] = prod[i];
+							System.out.println(i + ": " + prod[i]);
+							cn++;
+							i++;
+							prod_num++;
 						} else {
 							prod[i] = line;
-							System.out.println(i + ": " + line);
-							break;
+							qunatity_arr[qn] = prod[i];
+							System.out.println(i + ": " + prod[i]);
+							i = 0;
+							qn++;
 						}
 					}
-					SellProduct(prod[1], Integer.parseInt(prod[2]));
-					
+
+					for (int j = 0; j < prod_num; j++) {
+						SellProduct(code_arr[j], Integer.parseInt(qunatity_arr[j]));
+					}
+
 				} else if (clientMessage.equals("refund")) {
 					int i = 1;
 					String[] prod = new String[3];
-					
+
 					String line = "";
 					while ((line = bufferedReader.readLine()) != null) {
 						if (i == 1) {
@@ -112,9 +117,23 @@ public class ServerExam {
 					}
 
 					UpdateProduct(prod[1], Integer.parseInt(prod[2]));
-					
+
 				} else if (clientMessage.equals("check")) {
 					CheckProduct();
+				} else if (clientMessage.equals("bar_check")) {
+					int i = 1;
+					String[] prod = new String[3];
+
+					String line = "";
+					while ((line = bufferedReader.readLine()) != null) {
+						if (i == 1) {
+							prod[i] = line;
+							System.out.println(i + ": " + line);
+							break;
+						}
+					}
+
+					CheckBarProduct(prod[1]);
 				} else if (clientMessage.equals("exit")) {
 					bufferedReader.close();
 					serverSocket.close();
@@ -135,7 +154,7 @@ public class ServerExam {
 		String prod_code = code;
 		int prod_quantity = quantity;
 		List<ProductDTO> result_list = new ArrayList<ProductDTO>();
-		
+
 		ProductDAO dao = new ProductDAO();
 		dto.setProd_code(prod_code);
 		dto.setProd_quantity(prod_quantity);
@@ -145,7 +164,7 @@ public class ServerExam {
 		} else {
 			System.out.println("결제 실패");
 		}
-		
+
 		result_list = dao.sellProductList(dto);
 
 		flushBuffer(bufferedWriter, result_list);
@@ -171,7 +190,7 @@ public class ServerExam {
 			bufferedWriter.write("환불 성공");
 			bufferedWriter.newLine(); // readLine()으로 읽으므로 한줄끝을 알림
 			bufferedWriter.flush();
-			
+
 		} else {
 			System.out.println("환불 실패");
 			bufferedWriter.write("환불 실패");
@@ -190,7 +209,25 @@ public class ServerExam {
 		flushBuffer(bufferedWriter, result_list);
 
 	}
-	
+
+	private static void CheckBarProduct(String code) throws IOException {
+		ProductDTO dto = new ProductDTO();
+		String prod_code = code;
+		
+		bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
+		// 2. 그정보로 DB를 수정
+		ProductDAO dao = new ProductDAO();
+		dto.setProd_code(prod_code);
+
+		List<ProductDTO> result_list = new ArrayList<ProductDTO>();
+		result_list = dao.getProductCheck(dto);
+
+		flushBuffer(bufferedWriter, result_list);
+
+	}
+
 	private static void flushBuffer(BufferedWriter bufferedWriter, List<ProductDTO> result_list) {
 		try {
 			bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));

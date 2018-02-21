@@ -107,35 +107,46 @@ public class ClientExam {
 			System.out.println("|     POS 결제 페이지      |");
 			System.out.println("============================");
 			System.out.println("| Options:                 |");
-			System.out.println("|        1. 바코드 입력    |");
+			System.out.println("|        1. 바코드입력/결제|");
 			System.out.println("|        2. 뒤로가기       |");
 			System.out.println("============================");
 			swValue = Keyin.inInt(" ▶ 메뉴 선택 : ");
 
 			switch (swValue) {
 			case 1:
-				// ###################수량조절 개발하기
-				// ###################여러 개 등록하는거 개발하기
 				System.out.println("★바코드 입력하기★");
-
+				String str;
+				String quitWord = "n";
 				String[] prod = new String[3];
 				try {
 					socket = new Socket(IP, PORT_NUM);
 					bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 					bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+					
+					while(true) {
+						prod[0] = "sell";
+						System.out.print("바코드 번호 : ");
+						prod[1] = sc.nextLine();
+						System.out.print("수량 : ");
+						prod[2] = sc.nextLine();
 
-					prod[0] = "sell";
-					System.out.print("바코드 번호 : ");
-					prod[1] = sc.nextLine();
-					System.out.print("수량 : ");
-					prod[2] = sc.nextLine();
-
-					bufferedWriter.write(prod[0]);
-					bufferedWriter.newLine();
-					bufferedWriter.write(prod[1]);
-					bufferedWriter.newLine();
-					bufferedWriter.write(prod[2]);
-					bufferedWriter.newLine();
+						bufferedWriter.write(prod[0]);
+						bufferedWriter.newLine();
+						bufferedWriter.write(prod[1]);
+						bufferedWriter.newLine();
+						bufferedWriter.write(prod[2]);
+						bufferedWriter.newLine();
+						
+						System.out.print("계속 하시겠습니까?(y/n) : ");
+						str = sc.nextLine();
+			            if (str.equalsIgnoreCase(quitWord)) {
+			            	prod[0] = "fin";
+			            	bufferedWriter.write(prod[0]);
+							bufferedWriter.newLine();
+			            	break;
+			            }
+					}
+					
 					bufferedWriter.flush();
 
 					// // 입력받은 내용을 서버 콘솔에 출력
@@ -259,6 +270,29 @@ public class ClientExam {
 				continue;
 			case 2:
 				System.out.println("★특정 품목 조회★");
+				prod = new String[3];
+				try {
+					socket = new Socket(IP, PORT_NUM);
+					bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+					bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+					prod[0] = "bar_check";
+					System.out.print("바코드 번호 : ");
+					prod[1] = sc.nextLine();
+
+					// 서버로 값 전송
+					bufferedWriter.write(prod[0]);
+					bufferedWriter.newLine();
+					bufferedWriter.write(prod[1]);
+					bufferedWriter.newLine();
+					
+					bufferedWriter.flush();
+
+					setTableForm(bufferedReader);
+					socket.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				continue;
 			case 3:
 				System.out.println("★뒤로 가기★");

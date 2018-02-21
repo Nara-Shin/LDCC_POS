@@ -52,36 +52,44 @@ public class ProductDAO {
 	}
 
 	/** 한 품목의 정보를 얻는 메소드 */
-//	public ProductDTO getProductDTO(ProductDTO vProd) {
-//
-//		ProductDTO dto = new ProductDTO();
-//
-//		Connection con = null; // 연결
-//		PreparedStatement ps = null; // 명령
-//		ResultSet rs = null; // 결과
-//
-//		try {
-//
-//			con = getConn();
-//			String sql = "select * from prod_info where prod_code=?";
-//			ps = con.prepareStatement(sql);
-//			ps.setString(1, vProd.getProd_code());
-//
-//			rs = ps.executeQuery();
-//
-//			if (rs.next()) {
-//				dto.setProd_code(rs.getString("prod_code"));
-//				dto.setProd_name(rs.getString("prod_name"));
-//				dto.setProd_price(rs.getInt("prod_price"));
-//				dto.setProd_weight(rs.getInt("prod_weight"));
-//				dto.setProd_quantity(rs.getInt("prod_quantity"));
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//
-//		return dto;
-//	}
+	public List getProductCheck(ProductDTO vProd) {
+
+		ProductDTO dto = new ProductDTO();
+
+		Connection con = null; // 연결
+		PreparedStatement ps = null; // 명령
+		ResultSet rs = null; // 결과
+		List<ProductDTO> result_list = new ArrayList<ProductDTO>();
+
+		try {
+
+			con = getConn();
+			String sql = "select * from prod_info where prod_code=?";
+			ps = con.prepareStatement(sql);
+			ps.setString(1, vProd.getProd_code());
+
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+				ProductDTO prod = new ProductDTO();
+				String code = rs.getString("prod_code");
+				String name = rs.getString("prod_name");
+				int price = rs.getInt("prod_price");
+				int weight = rs.getInt("prod_weight");
+				int quantity = rs.getInt("prod_quantity");
+				prod.setProd_code(code);
+				prod.setProd_name(name);
+				prod.setProd_price(price);
+				prod.setProd_quantity(weight);
+				prod.setProd_weight(quantity);
+				result_list.add(prod);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result_list;
+	}
 
 	/** 품목리스트 출력 */
 	public List getProductList() {
@@ -119,23 +127,23 @@ public class ProductDAO {
 		// return data;
 		return result_list;
 	}
-	
+
 	/** 판매품목리스트 출력 */
 	public List sellProductList(ProductDTO vProd) {
 		System.out.println("dto=" + vProd.toStringUpdate());
 		Connection con = null; // 연결
 		PreparedStatement ps = null; // 명령
 		ResultSet rs = null; // 결과
-		
+
 		List<ProductDTO> result_list = new ArrayList<ProductDTO>();
 		try {
 			con = getConn();
 			String sql = "select * from prod_info where prod_code=?";
 			ps = con.prepareStatement(sql);
 			ps.setString(1, vProd.getProd_code());
-			
+
 			rs = ps.executeQuery();
-			
+
 			while (rs.next()) {
 				ProductDTO prod = new ProductDTO();
 				String code = rs.getString("prod_code");
@@ -188,7 +196,7 @@ public class ProductDAO {
 
 		return ok;
 	}
-	
+
 	/** 품목 환불 */
 	public boolean updateProduct(ProductDTO vProd) {
 		System.out.println("dto=" + vProd.toStringUpdate());
