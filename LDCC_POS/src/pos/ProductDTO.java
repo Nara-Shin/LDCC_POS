@@ -11,7 +11,8 @@ Developer : Nara Shin
 /*------------------------------------------------------------------
  [Table of contents]
 
- 1. Page function : 함수 호출
+ 1. Getter and Setter
+ 2. toString -- DAO에서 사용
  -------------------------------------------------------------------*/
 public class ProductDTO {
 	private String prod_code;
