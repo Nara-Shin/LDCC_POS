@@ -1,4 +1,5 @@
 package pos;
+
 /*------------------------------------------------------------------
 [ProductDAO JAVA]
 
@@ -7,7 +8,6 @@ Version : 1.0
 Last change : 2018/02/22
 Developer : Nara Shin
 -------------------------------------------------------------------*/
-
 /*------------------------------------------------------------------
  [Table of contents]
 
@@ -54,7 +54,7 @@ public class ProductDAO {
 	/** 한 품목의 정보를 얻는 메소드 */
 	public List getProductCheck(ProductDTO vProd) {
 
-		ProductDTO dto = new ProductDTO();
+		ProductDTO prod = new ProductDTO();
 
 		Connection con = null; // 연결
 		PreparedStatement ps = null; // 명령
@@ -71,7 +71,7 @@ public class ProductDAO {
 			rs = ps.executeQuery();
 
 			while (rs.next()) {
-				ProductDTO prod = new ProductDTO();
+//				ProductDTO prod = new ProductDTO();
 				String code = rs.getString("prod_code");
 				String name = rs.getString("prod_name");
 				int price = rs.getInt("prod_price");
@@ -167,7 +167,6 @@ public class ProductDAO {
 
 	/** 품목 결제 */
 	public boolean sellProduct(ProductDTO vProd) {
-		System.out.println("##dto=" + vProd.toStringUpdate());
 		boolean ok = false;
 		Connection con = null;
 		PreparedStatement ps = null;

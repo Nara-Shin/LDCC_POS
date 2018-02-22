@@ -61,6 +61,25 @@ public class ServerExam {
 				// 입력받은 내용을 서버 콘솔에 출력
 				System.out.println("클라이언트가 보내온 내용 : " + clientMessage);
 				// 클라이언트에게 보내기 위한 준비
+				if (clientMessage.equals("login")) {
+					int i = 1;
+					String[] prod = new String[3];
+
+					String line = "";
+					while ((line = bufferedReader.readLine()) != null) {
+						if (i == 1) {
+							prod[i] = line;
+							System.out.println(i + ": " + line);
+							i++;
+						} else {
+							prod[i] = line;
+							System.out.println(i + ": " + line);
+							break;
+						}
+					}
+
+					LoginLogic(prod[1], prod[2]);
+				}
 				if (clientMessage.equals("sell")) {
 					int i = 1;
 					int prod_num = 0;
@@ -135,6 +154,7 @@ public class ServerExam {
 
 					CheckBarProduct(prod[1]);
 				} else if (clientMessage.equals("exit")) {
+					System.out.println("\n접속 종료...");
 					bufferedReader.close();
 					serverSocket.close();
 					socket.close();// 접속 종료
@@ -147,6 +167,24 @@ public class ServerExam {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static void LoginLogic(String id, String pw) {
+		List<LoginDTO> result_list = new ArrayList<LoginDTO>();
+		LoginDAO dao = new LoginDAO();
+		LoginDTO dto = new LoginDTO();
+
+		
+		String user_id = id;
+		String user_pw = pw;
+		dto.setUser_id(user_id);
+		dto.setUser_pw(user_pw);
+
+		
+		result_list = dao.loginTry(dto);
+
+		loginflushBuffer(result_list);
+
 	}
 
 	private static void SellProduct(String code, int quantity) {
@@ -167,7 +205,7 @@ public class ServerExam {
 
 		result_list = dao.sellProductList(dto);
 
-		flushBuffer(bufferedWriter, result_list);
+		flushBuffer(result_list);
 
 	}
 
@@ -206,14 +244,14 @@ public class ServerExam {
 		List<ProductDTO> result_list = new ArrayList<ProductDTO>();
 		result_list = dao.getProductList();
 
-		flushBuffer(bufferedWriter, result_list);
+		flushBuffer(result_list);
 
 	}
 
 	private static void CheckBarProduct(String code) throws IOException {
 		ProductDTO dto = new ProductDTO();
 		String prod_code = code;
-		
+
 		bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
@@ -224,11 +262,11 @@ public class ServerExam {
 		List<ProductDTO> result_list = new ArrayList<ProductDTO>();
 		result_list = dao.getProductCheck(dto);
 
-		flushBuffer(bufferedWriter, result_list);
+		flushBuffer(result_list);
 
 	}
 
-	private static void flushBuffer(BufferedWriter bufferedWriter, List<ProductDTO> result_list) {
+	private static void flushBuffer(List<ProductDTO> result_list) {
 		try {
 			bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -243,6 +281,25 @@ public class ServerExam {
 				bufferedWriter.write(prod.getProd_quantity() + " ");
 
 				bufferedWriter.write(prod.getProd_weight() + " ");
+				bufferedWriter.newLine(); // readLine()으로 읽으므로 한줄끝을 알림
+			}
+			bufferedWriter.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private static void loginflushBuffer(List<LoginDTO> result_list) {
+		try {
+			bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			for (int i = 0; i < result_list.size(); i++) {
+				LoginDTO login = result_list.get(i);
+				bufferedWriter.write(login.getUser_id() + " ");
+
+				bufferedWriter.write(login.getUser_pw() + " ");
+
 				bufferedWriter.newLine(); // readLine()으로 읽으므로 한줄끝을 알림
 			}
 			bufferedWriter.flush();

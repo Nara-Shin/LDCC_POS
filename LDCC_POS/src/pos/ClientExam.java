@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -37,14 +38,76 @@ public class ClientExam {
 
 	private static String IP = "127.0.0.1"; // IP
 	private static int PORT_NUM = 6060; // PORT번호
+	
+	Scanner sc = new Scanner(System.in);
 
 	public static void main(String[] args) {
 		Cli = new ClientExam();
-		Cli.draw_menu();
+		Cli.login();
 	}
 
 	public void login() {
+		System.out.println("\n============================");
+		System.out.println("|     POS 로그인 페이지    |");
+		System.out.println("============================");
+		String[] login = new String[3];
+		String[] login_result = new String[3];
+		Cli = new ClientExam();
+		
+		while(true) {
+			try {
+				open();
+				
+				login[0] = "login";
+				
+				System.out.print("ID : ");
+				login[1] = sc.nextLine();
+				System.out.print("PW : ");
+				login[2] = sc.nextLine();
 
+				// 서버로 값 전송
+				bufferedWriter.write(login[0]);
+				bufferedWriter.newLine();
+				bufferedWriter.write(login[1]);
+				bufferedWriter.newLine();
+				bufferedWriter.write(login[2]);
+				bufferedWriter.newLine();
+				bufferedWriter.flush();
+
+				String line = "";
+				int i = 0;
+				try {
+					while ((line = bufferedReader.readLine()) != null) {
+						StringTokenizer st = new StringTokenizer(line);
+						while (st.hasMoreTokens()) { // 더이상 문자가 없을때 까지 반복
+							if (i == 0) { //id
+								login_result[i] = st.nextToken();
+								i++;
+							} else{ //pw
+								login_result[i] = st.nextToken();
+								break;
+							}
+						}
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				if(login[1].equals(login_result[0])&&login[2].equals(login_result[1])) {
+					System.out.println("★로그인 성공★\n");
+					Cli.draw_menu();
+				}else {
+					System.out.println("☆로그인 실패☆\n 아이디 혹은 비밀번호를 다시 확인해주세요.\n");
+				}
+				
+				close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
 	}
 
 	public void draw_menu() {
@@ -58,7 +121,7 @@ public class ClientExam {
 			System.out.println("============================");
 			System.out.println("| Options:                 |");
 			System.out.println("|        1. 결제           |");
-			System.out.println("|        2. 환불           |");
+			System.out.println("|        2. 환불 및 교환   |");
 			System.out.println("|        3. 재고관리       |");
 			System.out.println("|        4. Exit           |");
 			System.out.println("============================");
@@ -79,12 +142,15 @@ public class ClientExam {
 				System.out.println("★프로그램 종료★");
 				String[] prod = new String[1];
 				try {
-					bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+					open();
 
 					prod[0] = "exit";
 
 					bufferedWriter.write(prod[0]);
 					bufferedWriter.newLine();
+					bufferedWriter.flush();
+					
+					close();
 
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -101,7 +167,6 @@ public class ClientExam {
 
 	public void func_sell() {
 		int swValue;
-		Scanner sc = new Scanner(System.in);
 		while (true) {
 			System.out.println("\n============================");
 			System.out.println("|     POS 결제 페이지      |");
@@ -116,42 +181,37 @@ public class ClientExam {
 			case 1:
 				System.out.println("★바코드 입력하기★");
 				String str;
-				String quitWord = "n";
+				String quitWord = "p";
 				String[] prod = new String[3];
 				try {
-					socket = new Socket(IP, PORT_NUM);
-					bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-					bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-					
-					while(true) {
+					open();
+					System.out.print("※결제 시 p(pay) 입력\n");
+					while (true) {
 						prod[0] = "sell";
 						System.out.print("바코드 번호 : ");
 						prod[1] = sc.nextLine();
+						
+						str = prod[1];
+						if (str.equalsIgnoreCase(quitWord)) {
+							prod[0] = "fin";
+							bufferedWriter.write(prod[0]);
+							bufferedWriter.newLine();
+							break;
+						}
+						
 						System.out.print("수량 : ");
 						prod[2] = sc.nextLine();
 
-						bufferedWriter.write(prod[0]);
-						bufferedWriter.newLine();
-						bufferedWriter.write(prod[1]);
-						bufferedWriter.newLine();
-						bufferedWriter.write(prod[2]);
-						bufferedWriter.newLine();
+						setBarcode(prod[0], prod[1], prod[2]);
+
 						
-						System.out.print("계속 하시겠습니까?(y/n) : ");
-						str = sc.nextLine();
-			            if (str.equalsIgnoreCase(quitWord)) {
-			            	prod[0] = "fin";
-			            	bufferedWriter.write(prod[0]);
-							bufferedWriter.newLine();
-			            	break;
-			            }
 					}
-					
+
 					bufferedWriter.flush();
 
 					// // 입력받은 내용을 서버 콘솔에 출력
 					setTableForm(bufferedReader);
-					socket.close();
+					close();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -170,7 +230,6 @@ public class ClientExam {
 
 	public void func_refund() {
 		int swValue;
-		Scanner sc = new Scanner(System.in);
 
 		while (true) {
 			System.out.println("\n============================");
@@ -188,22 +247,15 @@ public class ClientExam {
 				System.out.println("★환불하기★");
 				String[] prod = new String[3];
 				try {
-					socket = new Socket(IP, PORT_NUM);
-					bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-					bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
+					open();
+					
 					prod[0] = "refund";
 					System.out.print("바코드 번호 : ");
 					prod[1] = sc.nextLine();
 					System.out.print("수량 : ");
 					prod[2] = sc.nextLine();
 
-					bufferedWriter.write(prod[0]);
-					bufferedWriter.newLine();
-					bufferedWriter.write(prod[1]);
-					bufferedWriter.newLine();
-					bufferedWriter.write(prod[2]);
-					bufferedWriter.newLine();
+					setBarcode(prod[0], prod[1], prod[2]);
 					bufferedWriter.flush();
 
 					// // 서버부터 메시지 입력받음
@@ -211,13 +263,56 @@ public class ClientExam {
 					//
 					// // 입력받은 내용을 서버 콘솔에 출력
 					System.out.println("환불결과 : " + serverMessage);
-					socket.close();
+					close();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				continue;
 			case 2:
 				System.out.println("★교환하기★");
+				String[] change_prod = new String[3];
+				try {
+					open();
+					
+					change_prod[0] = "refund";
+					System.out.print("반품할 상품 바코드 번호 : ");
+					change_prod[1] = sc.nextLine();
+					System.out.print("수량 : ");
+					change_prod[2] = sc.nextLine();
+
+					setBarcode(change_prod[0], change_prod[1], change_prod[2]);
+					bufferedWriter.flush();
+
+					
+					close();
+					
+					try {
+						Thread.sleep(1000);
+					}catch(InterruptedException e) {
+						e.printStackTrace();
+					}
+					
+					open();
+					change_prod[0] = "sell";
+					System.out.print("교환할 상품 바코드 번호 : ");
+					change_prod[1] = sc.nextLine();
+					System.out.print("수량 : ");
+					change_prod[2] = sc.nextLine();
+
+					setBarcode(change_prod[0], change_prod[1], change_prod[2]);
+					change_prod[0] = "fin";
+					bufferedWriter.write(change_prod[0]);
+					bufferedWriter.newLine();
+
+					bufferedWriter.flush();
+					
+
+					// // 입력받은 내용을 서버 콘솔에 출력
+					setTableForm(bufferedReader);
+					close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				continue;
 			case 3:
 				System.out.println("★뒤로 가기★");
@@ -232,7 +327,6 @@ public class ClientExam {
 
 	public void func_check() {
 		int swValue;
-		Scanner sc = new Scanner(System.in);
 
 		while (true) {
 			System.out.println("\n============================");
@@ -250,10 +344,8 @@ public class ClientExam {
 				System.out.println("★전체 품목 조회★");
 				String[] prod = new String[3];
 				try {
-					socket = new Socket(IP, PORT_NUM);
-					bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-					bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
+					open();
+					
 					prod[0] = "check";
 
 					// 서버로 값 전송
@@ -263,7 +355,7 @@ public class ClientExam {
 					bufferedWriter.flush();
 
 					setTableForm(bufferedReader);
-					socket.close();
+					close();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -272,10 +364,8 @@ public class ClientExam {
 				System.out.println("★특정 품목 조회★");
 				prod = new String[3];
 				try {
-					socket = new Socket(IP, PORT_NUM);
-					bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-					bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
+					open();
+					
 					prod[0] = "bar_check";
 					System.out.print("바코드 번호 : ");
 					prod[1] = sc.nextLine();
@@ -285,11 +375,11 @@ public class ClientExam {
 					bufferedWriter.newLine();
 					bufferedWriter.write(prod[1]);
 					bufferedWriter.newLine();
-					
+
 					bufferedWriter.flush();
 
 					setTableForm(bufferedReader);
-					socket.close();
+					close();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -307,11 +397,12 @@ public class ClientExam {
 
 	public void setTableForm(BufferedReader bufferedReader) {
 		// 출력 폼
-		String leftAlignFormat = "| %-15s | %-15s | %-4s | %-4s | %-4s |%n";
+		String leftAlignFormat = "| %-s\t | %-s\t | %-s\t | %-s\t | %-s\t |%n";
 
-		System.out.format("+-----------------+--------------------+------+------+------+%n");
-		System.out.format("|      바코드     |        품명        | 가격 | 중량 | 수량 |%n");
-		System.out.format("+-----------------+--------------------+------+------+------+%n");
+		System.out.format("------------------------------------------------------%n");
+		System.out.println("바코드"+"\t\t"+"품명"+"\t\t"+"가격"+"\t"+"중량"+"\t"+"수량");
+		System.out.format("------------------------------------------------------%n");
+
 
 		String line = "";
 		String[] prod_list = new String[5];
@@ -335,8 +426,7 @@ public class ClientExam {
 						i++;
 					} else if (i == 4) {
 						prod_list[i] = st.nextToken();
-						System.out.format(leftAlignFormat, prod_list[0], prod_list[1], prod_list[2], prod_list[3],
-								prod_list[4]);
+						System.out.println(prod_list[0]+"\t\t"+prod_list[1]+"\t\t"+prod_list[2]+"\t"+prod_list[3]+"\t"+prod_list[4]);
 						i = 0;
 						break;
 					}
@@ -346,7 +436,39 @@ public class ClientExam {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.format("+-----------------+--------------------+------+------+------+%n");
+
+		System.out.format("------------------------------------------------------%n");
+	}
+	
+	public void setBarcode(String flag, String code, String quantity) {
+		try {
+			bufferedWriter.write(flag);
+			bufferedWriter.newLine();
+			bufferedWriter.write(code);
+			bufferedWriter.newLine();
+			bufferedWriter.write(quantity);
+			bufferedWriter.newLine();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void open() throws Exception, IOException {
+		socket = new Socket(IP, PORT_NUM);
+		bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+		bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+	}
+	
+	public void close() {
+		try {
+			bufferedWriter.close();
+			bufferedReader.close();
+			socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
 
