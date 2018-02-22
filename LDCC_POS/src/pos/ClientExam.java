@@ -11,7 +11,17 @@ Developer : Nara Shin
 /*------------------------------------------------------------------
  [Table of contents]
 
- 1. Page function : 함수 호출
+ 1.  public void login() : 로그인 함수
+ 2.  public void draw_menu() : 메인메뉴 함수
+ 3.  public void func_sell() : 결제 페이지 함수
+ 4.  public void func_refund() : 환불 페이지 함수
+ 5.  public void func_check() : 재고관리 페이지 함수
+ 6.  public void setTableForm(BufferedReader bufferedReader) : 테이블 렌더링 함수
+     - 결제페이지/환불페이지에서 호출
+ 7.  public void setBarcode(String flag, String code, String quantity) : 서버에 보낼 바코드 및 수량 write
+ 8.  public void open() throws Exception, IOException : Socket, bufferedWriter, bufferedReader 열기
+ 9.  public void close() : Socket, bufferedWriter, bufferedReader 닫기
+ 10. class Keyin : 숫자 input
  -------------------------------------------------------------------*/
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -27,6 +37,7 @@ import java.util.StringTokenizer;
 import java.util.logging.Handler;
 
 public class ClientExam {
+	// 전역변수 선언
 	private String html = "";
 	private Handler mHandler;
 	private static ClientExam Cli;
@@ -41,11 +52,15 @@ public class ClientExam {
 	
 	Scanner sc = new Scanner(System.in);
 
+	//메인함수
 	public static void main(String[] args) {
 		Cli = new ClientExam();
+		
+		//로그인
 		Cli.login();
 	}
 
+	/** 로그인 함수 **/
 	public void login() {
 		System.out.println("\n============================");
 		System.out.println("|     POS 로그인 페이지    |");
@@ -110,6 +125,7 @@ public class ClientExam {
 		
 	}
 
+	/** 메인메뉴 함수 **/
 	public void draw_menu() {
 		int swValue;
 		ClientExam Cli = new ClientExam();
@@ -165,6 +181,7 @@ public class ClientExam {
 		}
 	}
 
+	/** 결제 페이지 함수 **/
 	public void func_sell() {
 		int swValue;
 		while (true) {
@@ -228,6 +245,7 @@ public class ClientExam {
 
 	}
 
+	/** 환불 페이지 함수 **/
 	public void func_refund() {
 		int swValue;
 
@@ -325,6 +343,7 @@ public class ClientExam {
 		}
 	}
 
+	/** 재고관리 페이지 함수 **/
 	public void func_check() {
 		int swValue;
 
@@ -395,6 +414,7 @@ public class ClientExam {
 		}
 	}
 
+	/** 테이블 렌더링 함수 **/
 	public void setTableForm(BufferedReader bufferedReader) {
 		// 출력 폼
 		String leftAlignFormat = "| %-s\t | %-s\t | %-s\t | %-s\t | %-s\t |%n";
@@ -440,6 +460,7 @@ public class ClientExam {
 		System.out.format("------------------------------------------------------%n");
 	}
 	
+	/** 서버에 보낼 바코드 및 수량 write **/
 	public void setBarcode(String flag, String code, String quantity) {
 		try {
 			bufferedWriter.write(flag);
@@ -454,12 +475,14 @@ public class ClientExam {
 		}
 	}
 	
+	/** Socket, bufferedWriter, bufferedReader 열기 **/
 	public void open() throws Exception, IOException {
 		socket = new Socket(IP, PORT_NUM);
 		bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 		bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 	}
 	
+	/** Socket, bufferedWriter, bufferedReader 닫기 **/
 	public void close() {
 		try {
 			bufferedWriter.close();
