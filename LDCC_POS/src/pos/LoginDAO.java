@@ -1,13 +1,5 @@
 package pos;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-
 /*------------------------------------------------------------------
 [LoginDAO JAVA]
 
@@ -19,8 +11,16 @@ Developer : Nara Shin
 /*------------------------------------------------------------------
  [Table of contents]
 
- 1. Page function : 함수 호출
+ 1. public Connection getConn() : DB연결 메소드
+ 2. public List loginTry(LoginDTO vLog) : [SELECT]유저 정보를 얻는 메소드
  -------------------------------------------------------------------*/
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LoginDAO {
 	private static final String JDBC_DRIVER = "org.mariadb.jdbc.Driver";
@@ -29,13 +29,11 @@ public class LoginDAO {
 	private static final String USERNAME = "root"; // DB ID
 	private static final String PASSWORD = "intern05@ldcc"; // DB 패스워드
 
-	private static Statement stmt;
-	
 	public LoginDAO() {
 
 	}
-	
-	/** DB연결 메소드 */
+
+	/** DB연결 메소드 **/
 	public Connection getConn() {
 		Connection con = null;
 
@@ -49,35 +47,35 @@ public class LoginDAO {
 
 		return con;
 	}
-	
-	/** 유저 정보를 얻는 메소드 */
+
+	/** [SELECT]유저 정보를 얻는 메소드 **/
 	public List loginTry(LoginDTO vLog) {
 		System.out.println("dto=" + vLog.toString());
-		LoginDTO dto = new LoginDTO();
-		boolean ok = false;
-		
 		Connection con = null; // 연결
 		PreparedStatement ps = null; // 명령
 		ResultSet rs = null; // 결과
 		List<LoginDTO> result_list = new ArrayList<LoginDTO>();
 
 		try {
-
+			// DB연결
 			con = getConn();
+			// user_info테이블에서 클라이언트에서 입력한 id값의 행 select
 			String sql = "select * from user_info where user_id=?";
 			ps = con.prepareStatement(sql);
-			ps.setString(1, vLog.getUser_id());
-
+			ps.setString(1, vLog.getUser_id()); // id 대입
+			// 쿼리 실행결과 저장
 			rs = ps.executeQuery();
 
 			while (rs.next()) {
+				// 쿼리 실행 결과값 반환
 				LoginDTO login = new LoginDTO();
 				String id = rs.getString("user_id");
 				String pw = rs.getString("user_pw");
-				
+				// 쿼리 실행 결과값 set
 				login.setUser_id(id);
 				login.setUser_pw(pw);
 
+				// 결과 리스트에 add
 				result_list.add(login);
 			}
 
